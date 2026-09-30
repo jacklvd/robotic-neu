@@ -1,0 +1,7 @@
+# Goal (the Request): one of these must be 0
+float32 distance # meters to move forward
+float32 angle # degrees to turn
+---
+# result (the Response): empty for now, later the robot final pose
+---
+# feedback: empty for now, later sensor data while moving
