@@ -64,6 +64,19 @@ class DrivingNode(Node):
         d = goal_request.distance
         a = goal_request.angle
         shape = goal_request.shape.strip().lower()
+        r = goal_request.radius
+        deg = goal_request.arc_degrees
+
+        if r != 0.0 or deg != 0.0:
+            if d != 0.0 or a != 0.0 or shape:
+                self.get_logger().warn('REJECT: arc given with another command')
+                return GoalResponse.REJECT
+            if r <= 0.0 or not 0.0 < deg <= 360.0:
+                self.get_logger().warn(f'REJECT: bad arc (radius={r}, degrees={deg})')
+                return GoalResponse.REJECT
+            side = 'left' if goal_request.arc_left else 'right'
+            self.get_logger().info(f'ACCEPT: arc {side}, radius={r} m, {deg} deg')
+            return GoalResponse.ACCEPT
 
         if shape:
             if shape not in ('figure8', 'p'):
@@ -97,6 +110,9 @@ class DrivingNode(Node):
             finished = self.DriveFigure8(goal_handle)
         elif shape == 'p':
             finished = self.DriveP(goal_handle)
+        elif goal.arc_degrees != 0.0:
+            d = goal.arc_degrees if goal.arc_left else -goal.arc_degrees
+            finished = self.DriveArc(goal_handle, goal.radius, d)
         elif goal.distance != 0.0:
             finished = self.DriveStraight(goal_handle, goal.distance)
         elif goal.angle != 0.0:
