@@ -4,6 +4,10 @@ float32 angle # degrees to turn
 # Extra Credit A: an optional named pattern ('figure8', 'p').
 # When shape is set, distance and angle are both 0 and are ignored.
 string shape
+# Project 4: drive along a circular arc. When used, distance, angle and shape are empty.
+bool arc_left # true = curve to the left, false = curve to the right
+float32 radius # meters, radius of the circle (> 0)
+float32 arc_degrees # how far around the circle to travel, 0 to 360
 ---
 # result (the Response): empty for now, later the robot final pose
 ---
