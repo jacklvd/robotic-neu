@@ -10,6 +10,8 @@ Commands:
   m <meters>          move forward, e.g.  m 0.5
   t <degrees>         turn,         e.g.  t 90
   b <meters> <deg>    send BOTH values (should be rejected, for testing)
+  8                   drive a figure-8        (extra credit)
+  p                   drive a letter P        (extra credit)
   q                   quit
 """
 
@@ -20,7 +22,7 @@ class ExecutiveNode(Node):
         # Client for the action named 'drive', of type Drive
         self._client = ActionClient(self, Drive, 'drive')
 
-    def send(self, distance=0.0, angle=0.0):
+    def send(self, distance=0.0, angle=0.0, shape=''):
         """Send one request and WAIT until it is finished."""
         if not self._client.wait_for_server(timeout_sec=5.0):
             print('  Driving Node is not running (no action server found).')
@@ -29,6 +31,7 @@ class ExecutiveNode(Node):
         goal = Drive.Goal()
         goal.distance = float(distance)
         goal.angle = float(angle)
+        goal.shape = str(shape)
 
         # Wait 1: was the request accepted?
         send_future = self._client.send_goal_async(goal)
@@ -36,10 +39,13 @@ class ExecutiveNode(Node):
         goal_handle = send_future.result()
 
         if not goal_handle.accepted:
-            print(f'  REJECTED (distance={distance}, angle={angle})')
+            print(f'  REJECTED (distance={distance}, angle={angle}, shape={shape!r})')
             return False
 
-        print(f'  Accepted, driving (distance={distance} m, angle={angle} deg)...')
+        if shape:
+            print(f'  Accepted, driving a {shape}...')
+        else:
+            print(f'  Accepted, driving (distance={distance} m, angle={angle} deg)...')
 
         # Wait 2: the result, when the robot has finished
         result_future = goal_handle.get_result_async()
@@ -79,6 +85,10 @@ def main(args=None):
                 node.send(distance=float(parts[1]))
             elif cmd == 't' and len(parts) == 2:
                 node.send(angle=float(parts[1]))
+            elif cmd == '8' and len(parts) == 1:
+                node.send(shape='figure8')
+            elif cmd == 'p' and len(parts) == 1:
+                node.send(shape='p')
             elif cmd == 'b' and len(parts) == 3:
                 node.send(distance=float(parts[1]), angle=float(parts[2]))
             else:

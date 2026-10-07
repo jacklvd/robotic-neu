@@ -1,6 +1,9 @@
 # Goal (the Request): one of these must be 0
 float32 distance # meters to move forward
 float32 angle # degrees to turn
+# Extra Credit A: an optional named pattern ('figure8', 'p').
+# When shape is set, distance and angle are both 0 and are ignored.
+string shape
 ---
 # result (the Response): empty for now, later the robot final pose
 ---
