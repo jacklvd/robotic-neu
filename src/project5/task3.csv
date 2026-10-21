@@ -1,0 +1,2 @@
+run,radius_m,ruler_m,start_x,start_y,start_yaw_deg,end_x,end_y,end_yaw_deg,odom_m,heading_change_deg,actual_err,odom_err
+1,0.5,0.03,-12.1989,-13.2420,-146.07,-12.2160,-13.2513,-143.53,0.0195,+2.54,+0.0300,+0.0195
