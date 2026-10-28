@@ -7,3 +7,6 @@ __pycache__/
 
 .vscode/
 *.swp
+
+# graphify knowledge graph output
+graphify-out/
