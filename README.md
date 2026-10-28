@@ -167,3 +167,41 @@ ros2 service call /start_motor std_srvs/srv/Empty
 ```
 
 </details>
+
+<details>
+<summary><b>Project 7 — mapping out and back</b></summary>
+
+`src/project7/` builds on the Project 6 grid, made bigger: 320 x 320 cells of
+5 cm (16 m x 16 m), so a classroom's walls stay on the grid after a 3 m
+drive. It needs `numpy` and `opencv-python` (`cv2`).
+
+```
+source install/setup.bash
+cd src/project7
+```
+
+#### Task 1 — a grid each way
+
+```
+python3 map_run.py drive            # out 3 m, turn 180 degrees, back 3 m
+python3 map_run.py replay [folder]  # rebuild the grids of a saved run (default: newest)
+```
+
+The robot drives 3 m at 0.1 m/s with `DriveDistance`, updating a grid every
+0.1 m, turns around with `RotateAngle`, then drives 3 m back, building a second
+grid the same way. Each grid's frame is the lidar's position at the start of
+its leg, with x along the robot's heading then, so the return grid is turned
+round relative to the outbound one.
+
+Every scan and odometry pose is saved, so a run can be replayed without the
+robot. Each run gets its own folder, `runs/<date-time>/`, holding
+`leg_out.json`, `leg_back.json`, `grid_out.png` and `grid_back.png`. Add
+`--show` to open the grids in a window.
+
+Tests (no robot needed):
+
+```
+python3 -m pytest test_project7.py
+```
+
+</details>
