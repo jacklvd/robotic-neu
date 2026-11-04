@@ -1,4 +1,4 @@
-# Task 3: C:\robotic\robotic-neu\src\project7\runs\20261104-131644
+# Task 3: /home/bo/robotic-neu/src/project7/runs/20261104-131644
 #   start (0.040, 0.000) m, goal (3.000, 1.750) m (outbound grid frame), 3.44 m apart
 #   obstacles grown by 20 cm (robot radius 17 cm + 3 cm margin)
 #   straight line: crosses 34 cells too close to an obstacle

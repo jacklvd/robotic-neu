@@ -1,4 +1,4 @@
-Task 2: C:\robotic\robotic-neu\src\project7\runs\20261104-131644
+Task 2: /home/bo/robotic-neu/src/project7/runs/20261104-131644
 
 Landmarks: 14 in the outbound grid, 14 in the return grid
 (filled clusters no bigger than 15 cm, strongest cell L >= 10,
@@ -15,8 +15,8 @@ Outbound grid landmarks (outbound frame)
       1   0.425   0.975
      O1   0.375   1.275
      O2   0.675   1.325
-      2   1.975   1.075
      O3   4.425  -1.175
+      2   1.975   1.075
       3   1.413  -2.675
       4   2.886  -1.075
       5   0.725  -1.675
