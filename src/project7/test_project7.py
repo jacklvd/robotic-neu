@@ -235,3 +235,118 @@ def test_compare_lists_matches_unmatched_and_mean_difference():
     assert c['mean'] == pytest.approx(0.015)
     assert c['mean_odom'] == pytest.approx((0.04 + 0.01) / 2)
     assert c['b_in_a'] == pytest.approx(b)
+
+
+# ---- Task 3: A* ---------------------------------------------------------------
+
+def open_floor():
+    """A grid whose every cell has been seen empty."""
+    grid = OccupancyGrid()
+    grid.L[:] = -5.0
+    return grid
+
+
+def test_obstacles_grow_by_the_robot_radius_and_unknown_floor_is_blocked():
+    from planner import blocked_cells
+    grid = open_floor()
+    i, j = to_cell(1.0, 0.0)
+    grid.L[i, j] = 20.0
+    grid.L[to_cell(-2.0, -2.0)] = 0.0  # never seen
+    blocked = blocked_cells(grid, radius=0.20)  # 4 cells
+    assert blocked[i + 4, j] and blocked[i, j - 4]
+    assert not blocked[i + 5, j] and not blocked[i + 3, j + 3]  # 4.2 cells away
+    assert blocked[to_cell(-2.0, -2.0)]
+    assert not blocked[to_cell(0.0, 0.0)]
+
+
+def test_astar_goes_straight_on_open_floor():
+    from planner import astar
+    blocked = np.zeros((20, 20), bool)
+    assert astar(blocked, (2, 5), (12, 5)) == [(i, 5) for i in range(2, 13)]
+
+
+def test_astar_takes_diagonal_steps_at_root_two_cost():
+    from planner import astar, path_length
+    blocked = np.zeros((20, 20), bool)
+    path = astar(blocked, (0, 0), (3, 3))
+    assert path == [(0, 0), (1, 1), (2, 2), (3, 3)]
+    assert path_length(path) == pytest.approx(3 * math.sqrt(2))
+
+
+def test_astar_bends_round_a_wall_by_the_shortest_way():
+    from planner import astar, path_length
+    blocked = np.zeros((30, 30), bool)
+    blocked[10, :20] = True  # wall from the edge across the straight line
+    path = astar(blocked, (5, 10), (15, 10))
+    assert not any(blocked[c] for c in path)
+    assert path[0] == (5, 10) and path[-1] == (15, 10)
+    # shortest: 4 diagonal + 6 straight steps to (9, 20), straight through the
+    # gap to (11, 20) (no cutting the wall's corner), and the same back
+    assert path_length(path) == pytest.approx(14 + 8 * math.sqrt(2))
+
+
+def test_astar_does_not_squeeze_diagonally_between_two_blocked_cells():
+    from planner import astar
+    blocked = np.ones((5, 5), bool)
+    blocked[1, 1] = blocked[2, 2] = False  # only a corner-to-corner gap
+    assert astar(blocked, (1, 1), (2, 2)) is None
+
+
+def test_plan_rejects_bad_goals():
+    from planner import plan
+    grid = open_floor()
+    with pytest.raises(ValueError, match='at least 2'):
+        plan(grid, (0.0, 0.0), (1.5, 0.0))
+    grid.L[to_cell(3.0, 0.0)] = 20.0
+    with pytest.raises(ValueError, match='goal'):
+        plan(grid, (0.0, 0.0), (3.0, 0.0))
+
+
+def test_plan_returns_a_path_in_metres_that_avoids_an_obstacle():
+    from planner import blocked_cells, max_deviation, plan
+    grid = open_floor()
+    i, j = to_cell(1.5, 0.0)
+    grid.L[i - 2:i + 3, j - 6:j + 7] = 20.0  # a 0.25 m x 0.65 m box in the way
+    path = plan(grid, (0.0, 0.0), (3.0, 0.0))
+    assert path[0] == pytest.approx((0.025, 0.025)) and path[-1] == pytest.approx((3.025, 0.025))
+    blocked = blocked_cells(grid)
+    assert not any(blocked[to_cell(x, y)] for x, y in path)
+    assert max_deviation(path, path[0], path[-1]) > 0.5  # round the box: 0.325 + 0.20 m
+
+
+def dijkstra_length(blocked, start, goal):
+    """Shortest path length with the same moves as A*, by plain Dijkstra."""
+    import heapq
+    best = {start: 0.0}
+    frontier = [(0.0, start)]
+    while frontier:
+        d, (i, j) = heapq.heappop(frontier)
+        if (i, j) == goal:
+            return d
+        if d > best[(i, j)]:
+            continue
+        for di in (-1, 0, 1):
+            for dj in (-1, 0, 1):
+                ni, nj = i + di, j + dj
+                if (di == dj == 0 or not (0 <= ni < blocked.shape[0] and 0 <= nj < blocked.shape[1])
+                        or blocked[ni, nj] or (di and dj and (blocked[i + di, j] or blocked[i, j + dj]))):
+                    continue
+                nd = d + math.hypot(di, dj)
+                if nd < best.get((ni, nj), math.inf):
+                    best[(ni, nj)] = nd
+                    heapq.heappush(frontier, (nd, (ni, nj)))
+    return None
+
+
+def test_astar_finds_the_shortest_path_through_clutter():
+    from planner import astar, path_length
+    rng = np.random.default_rng(0)
+    for _ in range(20):
+        blocked = rng.random((30, 30)) < 0.3
+        blocked[0, 0] = blocked[29, 29] = False
+        path = astar(blocked, (0, 0), (29, 29))
+        best = dijkstra_length(blocked, (0, 0), (29, 29))
+        if best is None:
+            assert path is None
+        else:
+            assert path_length(path) == pytest.approx(best)

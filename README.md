@@ -220,6 +220,24 @@ mean position difference of those found in both. It also saves
 both grids, with the same number in each; orange / blue = only in that grid)
 and `overlay.png` (the return grid moved onto the outbound one).
 
+#### Task 3 — A* path
+
+```
+python3 task3.py [folder] [--goal X Y]   # default goal: (3.0, 1.75) m
+```
+
+Plans the shortest path with A* on the outbound grid, from where the robot's
+centre was at the start to the goal (metres, outbound grid frame; it must be at
+least 2 m away). Filled cells are grown by 20 cm (the Turtlebot 4's 17 cm
+radius plus a 3 cm margin), so keeping the robot's centre out of them keeps the
+whole robot clear, and floor never seen as empty is off limits. A* moves to the
+8 neighbouring cells without cutting obstacle corners, with the straight-line
+distance to the goal as its heuristic. The default goal is behind the box
+ahead and to the left in our run, so the straight line is blocked and the path
+bends round it. Saves `task3_path.png` (grown obstacles, the path and the
+blocked straight line) and `task3_path.txt` (the path's points) in the run
+folder.
+
 Tests (no robot needed):
 
 ```
