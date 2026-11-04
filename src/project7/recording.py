@@ -44,6 +44,11 @@ class Leg:
         })
 
 
+def grid1_T_grid2(leg1, leg2):
+    """Where odometry says leg 2's grid frame is, in leg 1's grid frame."""
+    return leg1._grid_T_odom @ np.linalg.inv(leg2._grid_T_odom)
+
+
 def save_leg(leg, path):
     # json writes inf / nan ranges as Infinity / NaN and reads them back
     with open(path, 'w') as f:

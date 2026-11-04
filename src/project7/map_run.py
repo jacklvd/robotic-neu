@@ -44,6 +44,11 @@ RUNS = os.path.join(HERE, 'runs')
 LEGS = ('out', 'back')
 
 
+def stopped_label(travelled):
+    """Label of a leg's last update: how far odometry says the robot got."""
+    return f'{travelled:.3f} m (stopped)'
+
+
 def save_image(grid, path, leg_name, folder):
     name = os.path.join(folder, f'grid_{leg_name}.png')
     cv2.imwrite(name, grid.image(path))
@@ -173,7 +178,7 @@ def drive(show):
         node.check_result(result_future, 'drive_distance')
         time.sleep(SETTLE_SEC)
         node.wait_for('odom')
-        update(f'{DISTANCE:.1f} m (stopped)')
+        update(stopped_label(travelled()))
         print(f'  grid: {grid.summary()}')
         save_leg(leg, os.path.join(folder, f'leg_{name}.json'))
         return save_image(grid, path, name, folder)
@@ -203,14 +208,19 @@ def drive(show):
         show_images(images)
 
 
+def latest_run():
+    """The newest run folder in runs/ with both legs saved."""
+    # skip runs that stopped before both legs were saved
+    runs = sorted(r for r in (os.listdir(RUNS) if os.path.isdir(RUNS) else [])
+                  if all(os.path.exists(os.path.join(RUNS, r, f'leg_{n}.json')) for n in LEGS))
+    if not runs:
+        sys.exit(f'No complete runs in {RUNS}. Drive one first.')
+    return os.path.join(RUNS, runs[-1])
+
+
 def replay(folder, show):
     if folder is None:
-        # skip runs that stopped before both legs were saved
-        runs = sorted(r for r in (os.listdir(RUNS) if os.path.isdir(RUNS) else [])
-                      if all(os.path.exists(os.path.join(RUNS, r, f'leg_{n}.json')) for n in LEGS))
-        if not runs:
-            sys.exit(f'No complete runs in {RUNS}. Drive one first.')
-        folder = os.path.join(RUNS, runs[-1])
+        folder = latest_run()
     print(f'Replaying {folder}')
     images = []
     for name in LEGS:

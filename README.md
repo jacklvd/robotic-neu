@@ -198,6 +198,28 @@ robot. Each run gets its own folder, `runs/<date-time>/`, holding
 `leg_out.json`, `leg_back.json`, `grid_out.png` and `grid_back.png`. Add
 `--show` to open the grids in a window.
 
+#### Task 2 — landmarks
+
+```
+python3 task2.py [folder]   # default: the newest run in runs/
+```
+
+Finds landmarks in both grids of a run: small (at most 15 cm), strongly
+filled clusters with no other filled cell within 15 cm, which in an empty
+classroom are mostly table and chair legs. Each landmark's position is the
+centre of its cluster, weighted by log-odds. RANSAC then matches the two lists
+without using odometry: every pair of landmarks in one grid is tried against
+every pair at the same distance apart in the other, and the rotation and shift
+that line up the most landmarks (within 10 cm) wins, refined by least squares.
+
+It prints, and saves to `task2_report.txt` in the run folder, the transform
+from the return grid to the outbound grid (next to odometry's), every return
+landmark in the outbound frame, the landmarks found in only one grid, and the
+mean position difference of those found in both. It also saves
+`landmarks_out.png` and `landmarks_back.png` (landmarks circled: green = in
+both grids, with the same number in each; orange / blue = only in that grid)
+and `overlay.png` (the return grid moved onto the outbound one).
+
 Tests (no robot needed):
 
 ```

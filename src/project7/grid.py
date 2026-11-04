@@ -34,6 +34,13 @@ def to_cell(x, y):
     return ORIGIN + math.floor(x / CELL), ORIGIN + math.floor(y / CELL)
 
 
+def to_pixel(x, y, scale=3):
+    """Point in the grid frame to (column, row) in OccupancyGrid.image()."""
+    i, j = to_cell(x, y)
+    return ((GRID_SIZE - 1 - j) * scale + scale // 2,
+            (GRID_SIZE - 1 - i) * scale + scale // 2)
+
+
 def in_grid(i, j):
     return 0 <= i < GRID_SIZE and 0 <= j < GRID_SIZE
 
@@ -112,14 +119,8 @@ class OccupancyGrid:
         grey = grey[::-1, ::-1]  # row 0 = far ahead, column 0 = far left
         img = cv2.cvtColor(grey, cv2.COLOR_GRAY2BGR)
         img = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
-
-        def pixel(x, y):
-            i, j = to_cell(x, y)
-            return ((GRID_SIZE - 1 - j) * scale + scale // 2,
-                    (GRID_SIZE - 1 - i) * scale + scale // 2)
-
         for x, y in robot_path:
-            cv2.circle(img, pixel(x, y), 3, (0, 0, 255), -1)
+            cv2.circle(img, to_pixel(x, y, scale), 3, (0, 0, 255), -1)
         return img
 
     def summary(self):
