@@ -1,0 +1,73 @@
+Task 2: /home/bo/robotic-neu/src/project7/runs/20261104-131644
+
+Landmarks: 14 in the outbound grid, 14 in the return grid
+(filled clusters no bigger than 15 cm, strongest cell L >= 10,
+ no other filled cell within 15 cm)
+
+Return grid frame -> outbound grid frame
+                x (m)   y (m)  rotation (deg)
+  landmarks    3.083   0.027   -177.58
+  odometry     3.099   0.014   -177.87
+  difference  -0.016   0.013      0.29
+
+Outbound grid landmarks (outbound frame)
+  label   x (m)   y (m)
+      1   0.425   0.975
+     O1   0.375   1.275
+     O2   0.675   1.325
+     O3   4.425  -1.175
+      2   1.975   1.075
+      3   1.413  -2.675
+      4   2.886  -1.075
+      5   0.725  -1.675
+      6  -0.802   1.372
+      7   3.575  -1.256
+     O4  -0.968   2.173
+      8   3.086  -2.432
+     O5   3.191  -3.475
+     O6   4.749   1.116
+
+Return grid landmarks: own frame -> outbound frame (landmark transform)
+  label   x (m)   y (m)  ->   x (m)   y (m)
+      4   0.246   1.075  ->   2.883  -1.058
+      6   3.837  -1.509  ->  -0.815   1.372
+      3   1.781   2.631  ->   1.415  -2.677
+      5   2.425   1.590  ->   0.727  -1.664
+      7  -0.475   1.325  ->   3.613  -1.277
+     B1  -1.475   1.775  ->   4.631  -1.685
+     B2   2.125   1.525  ->   1.024  -1.587
+     B3   4.225  -0.075  ->  -1.141  -0.077
+     B4  -1.425  -1.325  ->   4.451   1.411
+      2   1.075  -1.102  ->   1.962   1.083
+     B5  -1.156  -1.622  ->   4.169   1.696
+      8   0.106   2.485  ->   3.082  -2.460
+     B6   2.257  -2.875  ->   0.706   2.804
+      1   2.625  -1.075  ->   0.415   0.990
+
+Found in both grids: 8
+  label   outbound x, y   return x, y (moved)   difference (cm)
+      1   0.425  0.975     0.415  0.990          1.8
+      2   1.975  1.075     1.962  1.083          1.5
+      3   1.413 -2.675     1.415 -2.677          0.2
+      4   2.886 -1.075     2.883 -1.058          1.8
+      5   0.725 -1.675     0.727 -1.664          1.1
+      6  -0.802  1.372    -0.815  1.372          1.2
+      7   3.575 -1.256     3.613 -1.277          4.4
+      8   3.086 -2.432     3.082 -2.460          2.8
+  mean difference: 1.8 cm with the landmark transform (2.1 cm with odometry's)
+
+Only in the outbound grid: 6
+     O1  (0.375, 1.275)
+     O2  (0.675, 1.325)
+     O3  (4.425, -1.175)
+     O4  (-0.968, 2.173)
+     O5  (3.191, -3.475)
+     O6  (4.749, 1.116)
+
+Only in the return grid: 6 (positions moved into the outbound frame)
+     B1  (4.631, -1.685)
+     B2  (1.024, -1.587)
+     B3  (-1.141, -0.077)
+     B4  (4.451, 1.411)
+     B5  (4.169, 1.696)
+     B6  (0.706, 2.804)
