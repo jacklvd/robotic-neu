@@ -245,3 +245,72 @@ python3 -m pytest test_project7.py
 ```
 
 </details>
+
+<details>
+<summary><b>Project 9 — finding and driving to traffic cones</b></summary>
+
+`src/project9/cones.py` uses the OAK-D camera to tell the cones apart by
+colour and the lidar to measure how far away they are. It needs `numpy` and
+`opencv-python` (`cv2`); `cv_bridge` is not needed.
+
+Set three cones of different colours in a triangle, at least 1.5 m apart,
+with nothing inside it, and put the robot near the middle.
+
+```
+source install/setup.bash
+cd src/project9
+```
+
+#### Tune the colours first
+
+The three colours are hard-coded in `COLORS` at the top of `cones.py`
+(default: `orange`, `green`, `blue`, as HSV ranges). Point the robot at each
+cone and run:
+
+```
+python3 cones.py look
+```
+
+This prints the HSV value at the centre of the image and what each colour
+detects. It also saves `look.png` and one mask per colour, `look_<color>.png`
+(white = matched). Widen or narrow a range until only its cone shows up white.
+
+#### Task 1 and Task 2
+
+```
+python3 cones.py
+python3 cones.py --image-topic /oakd/rgb/image_raw   # if your camera topic differs (ros2 topic list)
+```
+
+**Task 1:** the robot turns 360 degrees in 30 degree steps with `RotateAngle`.
+At each stop it looks for every colour and keeps the sighting nearest the
+image centre. The lidar then gives each cone's distance. It prints each
+colour's bearing and distance, or `NOT FOUND`.
+
+**Task 2:** at the prompt, type a colour (`q` quits). The robot turns towards
+that cone, centres it in the camera and drives with `DriveDistance` to 15 cm
+short. It then re-centres and creeps up, stopping about an inch (`STOP_GAP`)
+from the cone's base. You can type another colour and it drives on to that cone.
+
+Calibration constants at the top of `cones.py`:
+
+- `HFOV_DEG`: the camera's field of view. Lower it if centring overshoots;
+  raise it if centring takes many small turns.
+- `CONE_BASE_OVER_LIDAR`: how much further out the cone's base reaches than
+  the point where the lidar hits it. Raise it if the robot touches the cone;
+  lower it if the robot stops too far away.
+- `STOP_GAP`: the gap to leave between the bumper and the cone.
+
+If no `/scan` message arrives, start the lidar motor:
+
+```
+ros2 service call /start_motor std_srvs/srv/Empty
+```
+
+Tests (no robot needed):
+
+```
+python3 -m pytest test_project9.py
+```
+
+</details>
